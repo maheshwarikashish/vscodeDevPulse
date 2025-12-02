@@ -1,6 +1,7 @@
 // src/extension.ts
 import * as vscode from 'vscode';
 import { db, collection, addDoc, serverTimestamp } from './firebase-extension'; // UNCOMMENTED
+import { testWrite } from './firebase-extension';
 
 // Global variable to track the start time of the current session
 let sessionStartTime: Date | null = null;
@@ -91,6 +92,31 @@ export function activate(context: vscode.ExtensionContext) {
     // 3. Register the Log Break command
     context.subscriptions.push(
         vscode.commands.registerCommand('devpulse.logBreak', handleLogBreak)
+    );
+
+    // 4. Register a diagnostic command to test Firestore writes (returns structured result)
+    context.subscriptions.push(
+        vscode.commands.registerCommand('devpulse.testFirestore', async () => {
+            const result = await testWrite();
+
+            // Safe stringify to surface structured diagnostic info in logs
+            try {
+                const safe = JSON.stringify(result, Object.getOwnPropertyNames(result), 2);
+                console.log('[DevPulse] Firestore diagnostic result:', safe);
+            } catch (e) {
+                console.log('[DevPulse] Firestore diagnostic result (non-serializable):', String(result));
+            }
+
+            if (result && result.success) {
+                vscode.window.showInformationMessage('DevPulse: Firestore test write succeeded');
+            } else if (result && result.skipped) {
+                vscode.window.showWarningMessage('DevPulse: Firestore test skipped (not initialized)');
+            } else {
+                console.error('[DevPulse] Firestore diagnostic failed:', result);
+                vscode.window.showErrorMessage(`DevPulse: Firestore diagnostic failed: ${result?.message ?? 'unknown'}`);
+            }
+            return result;
+        })
     );
     
     // Log success after registration

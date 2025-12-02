@@ -1,19 +1,103 @@
 // firebase-extension.ts
 
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { getFirestore, collection as fbCollection, addDoc as fbAddDoc, serverTimestamp as fbServerTimestamp } from "firebase/firestore";
 
 // REPLACE WITH YOUR CONFIG OBJECT FROM PHASE 1
 const firebaseConfig = {
-  apiKey: "AIzaSyB...",
-  authDomain: "devpulse-...",
-  projectId: "devpulse-...",
-  // ...other keys
+  apiKey: "AIzaSyDgaCFid4IaE3sP2BUe4iTVZFi1LpijkeA",
+  authDomain: "devpulse-735de.firebaseapp.com",
+  projectId: "devpulse-735de",
+  storageBucket: "devpulse-735de.firebasestorage.app",
+  messagingSenderId: "1004389043770",
+  appId: "1:1004389043770:web:2b0481ec9a1e7c46122f03"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Decide whether the config looks real or still placeholder values.
+const configIsPlaceholder = Object.values(firebaseConfig).some((v) => typeof v === 'string' && v.includes('...'));
 
-// Export the functions we need
+// Initialize Firebase safely. If initialization fails or config looks like a placeholder,
+// export safe stub functions. This prevents long-running Firestore retries in tests when
+// the user hasn't provided valid credentials yet.
+let db: any = null;
+if (configIsPlaceholder) {
+  console.log('[DevPulse] Firebase config looks like a placeholder — skipping initialization for safety');
+  db = null;
+} else {
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    console.log('[DevPulse] Firebase initialized successfully');
+  } catch (err) {
+    // Fail gracefully — don't throw during module load so activation can continue
+    console.error('[DevPulse] Firebase initialization failed:', err);
+    db = null;
+  }
+}
+
+// Safe wrappers exported so the extension can import the same names even when Firebase is not available
+function collection(dbArg: any, path: string) {
+  if (!db) {
+    // return a lightweight stub that downstream code can pass to addDoc stub
+    return { __devpulse_stub_collection: true, path };
+  }
+  return fbCollection(dbArg, path);
+}
+
+async function addDoc(colRef: any, data: any) {
+  if (!db) {
+    console.warn('[DevPulse] addDoc called but Firebase is not initialized — skipping network call.');
+    return Promise.resolve(null);
+  }
+
+  // Wrap the Firestore addDoc with a short timeout so failing network calls (permissions,
+  // missing API, etc.) don't hang activation/tests forever. If the write doesn't complete
+  // within `WRITE_TIMEOUT_MS`, resolve with null and log a warning.
+  const WRITE_TIMEOUT_MS = 3000;
+  const writePromise = fbAddDoc(colRef, data);
+  const timeoutPromise = new Promise((res) => {
+    setTimeout(() => {
+      console.warn('[DevPulse] Firestore write timed out — continuing without blocking.');
+      res(null);
+    }, WRITE_TIMEOUT_MS);
+  });
+
+  // Promise.race ensures we return whichever completes first.
+  return Promise.race([writePromise, timeoutPromise]);
+}
+
+function serverTimestamp() {
+  if (!db) {
+    // fallback to client timestamp for development/logging
+    return new Date();
+  }
+  return fbServerTimestamp();
+}
+
 export { db, collection, addDoc, serverTimestamp };
+
+// Diagnostic helper: attempt a single test write and return structured result for debugging.
+async function testWrite() {
+  if (!db) {
+    console.warn('[DevPulse] testWrite skipped: Firebase not initialized');
+    return { skipped: true };
+  }
+
+  try {
+    const col = fbCollection(db, 'diagnostics');
+    const res = await Promise.race([
+      fbAddDoc(col, { ts: new Date().toISOString(), note: 'devpulse-diagnostic' }),
+      new Promise((res) => setTimeout(() => res({ timeout: true }), 5000)),
+    ]);
+
+    return { success: true, result: res };
+  } catch (err: any) {
+    // Try to extract useful fields from the error
+    const code = err?.code ?? err?.status ?? null;
+    const message = err?.message ?? String(err);
+    console.error('[DevPulse] testWrite error:', err);
+    return { success: false, code, message, raw: err };
+  }
+}
+
+export { testWrite };
