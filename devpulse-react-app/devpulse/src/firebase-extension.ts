@@ -1,7 +1,7 @@
 // firebase-extension.ts
 
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection as fbCollection, addDoc as fbAddDoc, serverTimestamp as fbServerTimestamp } from "firebase/firestore";
+import { getFirestore, collection as fbCollection, addDoc as fbAddDoc, serverTimestamp as fbServerTimestamp, connectFirestoreEmulator as fbConnectEmulator } from "firebase/firestore";
 
 // REPLACE WITH YOUR CONFIG OBJECT FROM PHASE 1
 const firebaseConfig = {
@@ -27,6 +27,22 @@ if (configIsPlaceholder) {
   try {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
+
+    // If an emulator host is provided in the environment, connect to the local emulator
+    // This avoids using a paid cloud database during development/tests.
+    try {
+      const emulatorHost = process.env.FIRESTORE_EMULATOR_HOST || process.env.FIRESTORE_EMULATOR || null;
+      if (emulatorHost) {
+        // emulatorHost is typically "host:port" e.g. "localhost:8080"
+        const [host, portStr] = emulatorHost.split(':');
+        const port = parseInt(portStr, 10) || 8080;
+        fbConnectEmulator(db, host, port);
+        console.log('[DevPulse] Connected to Firestore emulator at', emulatorHost);
+      }
+    } catch (e) {
+      console.warn('[DevPulse] Could not connect to Firestore emulator:', e);
+    }
+
     console.log('[DevPulse] Firebase initialized successfully');
   } catch (err) {
     // Fail gracefully — don't throw during module load so activation can continue

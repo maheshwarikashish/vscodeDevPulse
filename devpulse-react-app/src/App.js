@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { db } from "./firebase/firebase"; // Adjust path if needed
 import { 
-    collection, 
-    addDoc, 
-    getDocs, 
-    query, 
-    orderBy,
+  collection, 
+  addDoc, 
+  getDocs, 
+  query, 
+  orderBy,
+  serverTimestamp
 } from "firebase/firestore";
 
 // Step 3: Add imports for charting
@@ -57,13 +58,15 @@ function App() {
 
       await addDoc(collection(db, "sessions"), {
         userId: "test_user_dashboard",
-        startTime: new Date(), // Use current time
+        startTime: serverTimestamp(), // Use server timestamp for consistency
         durationMinutes: randomDuration,
         type: randomType
       });
       fetchSessions(); // Refresh the list after adding
     } catch (e) {
       console.error("Error adding document: ", e);
+      // Show a simple user-facing message in the UI for quick debugging
+      window.alert('Failed to add test session. Check console for details.');
     }
   };
 

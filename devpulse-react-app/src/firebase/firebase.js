@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore} from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // REPLACE THIS WITH YOUR CONFIG OBJECT FROM PHASE 1
 const firebaseConfig = {
@@ -15,3 +15,16 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 export { db };
+
+// If REACT_APP_FIRESTORE_EMULATOR_HOST is set, connect the web app to the emulator
+// Example value: "localhost:8080"
+if (process.env.REACT_APP_FIRESTORE_EMULATOR_HOST) {
+  try {
+    const [host, portStr] = process.env.REACT_APP_FIRESTORE_EMULATOR_HOST.split(':');
+    const port = parseInt(portStr, 10) || 8080;
+    connectFirestoreEmulator(db, host, port);
+    console.log('[DevPulse Web] Connected to Firestore emulator at', process.env.REACT_APP_FIRESTORE_EMULATOR_HOST);
+  } catch (e) {
+    console.warn('[DevPulse Web] Failed to connect to Firestore emulator:', e);
+  }
+}

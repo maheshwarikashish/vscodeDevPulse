@@ -30,6 +30,10 @@
       {
         "command": "devpulse.logBreak",
         "title": "DevPulse: Log Break"
+      },
+      {
+        "command": "devpulse.testFirestore",
+        "title": "DevPulse: Test Firestore (diagnostic)"
       }
     ]
   },
@@ -51,6 +55,7 @@
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.1",
+    "firebase-tools": "^14.26.0",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3",
@@ -59,7 +64,7 @@
   },
   "dependencies": {
     "chart.js": "^4.5.1",
-    "react-chartjs-2": "^5.3.1",
-    "firebase": "^12.6.0"
+    "firebase": "^12.6.0",
+    "react-chartjs-2": "^5.3.1"
   }
 }
