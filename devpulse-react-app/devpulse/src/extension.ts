@@ -1,7 +1,6 @@
 // src/extension.ts
 import * as vscode from 'vscode';
-import { db, collection, addDoc, serverTimestamp } from './firebase-extension'; // UNCOMMENTED
-import { testWrite } from './firebase-extension';
+import { db, collection, addDoc, serverTimestamp, testWrite } from './firebase-extension'; // consolidated import
 
 // Global variable to track the start time of the current session
 let sessionStartTime: Date | null = null;
@@ -77,7 +76,9 @@ async function handleLogBreak() {
 // --- THE CRITICAL ACTIVATION FUNCTION ---
 export function activate(context: vscode.ExtensionContext) {
     // This message confirms the activation process started
-    console.log('--- DevPulse Extension Activation Attempted ---'); 
+    console.log('--- DevPulse Extension Activation Attempted ---');
+    const out = vscode.window.createOutputChannel('DevPulse');
+    out.appendLine('--- DevPulse Extension Activation Attempted ---');
 
     // 1. Register the Start Session command
     context.subscriptions.push(
@@ -121,6 +122,7 @@ export function activate(context: vscode.ExtensionContext) {
     
     // Log success after registration
     console.log('--- DevPulse Commands Registered Successfully ---');
+    out.appendLine('--- DevPulse Commands Registered Successfully ---');
 }
 
 export function deactivate() {}

@@ -100,13 +100,16 @@ async function testWrite() {
   }
 
   try {
+    // Use the underlying fbAddDoc directly here (instead of the wrapped addDoc)
+    // so we can return the created document's id/path for clearer diagnostics.
     const col = fbCollection(db, 'diagnostics');
-    const res = await Promise.race([
-      fbAddDoc(col, { ts: new Date().toISOString(), note: 'devpulse-diagnostic' }),
-      new Promise((res) => setTimeout(() => res({ timeout: true }), 5000)),
-    ]);
+    const res = await fbAddDoc(col, { ts: new Date().toISOString(), note: 'devpulse-diagnostic' });
 
-    return { success: true, result: res };
+    // DocumentReference from addDoc exposes `id` and `path` properties.
+    const id = (res as any)?.id ?? null;
+    const path = (res as any)?.path ?? null;
+
+    return { success: true, id, path, result: res };
   } catch (err: any) {
     // Try to extract useful fields from the error
     const code = err?.code ?? err?.status ?? null;
