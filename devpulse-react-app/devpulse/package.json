@@ -34,6 +34,14 @@
       {
         "command": "devpulse.testFirestore",
         "title": "DevPulse: Test Firestore (diagnostic)"
+      },
+      {
+        "command": "devpulse.signIn",
+        "title": "DevPulse: Sign In"
+      },
+      {
+        "command": "devpulse.signOut",
+        "title": "DevPulse: Sign Out"
       }
     ]
   },

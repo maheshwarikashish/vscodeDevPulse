@@ -1,21 +1,26 @@
 // src/extension.ts
 import * as vscode from 'vscode';
-import { db, collection, addDoc, serverTimestamp, testWrite } from './firebase-extension'; // consolidated import
-
+import { db, collection, addDoc, serverTimestamp, testWrite, auth } from './firebase-extension'; // consolidated import
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
 // Global variable to track the start time of the current session
 let sessionStartTime: Date | null = null;
-const USER_ID = "static_user_123"; 
+// let USER_ID = "static_user_123"; // No longer needed as we'll use authenticated user
+let currentUser: User | null = null; // Track authenticated user
 
 // REAL Firebase logging function
 async function logSessionToFirebase(durationMinutes: number, sessionType: 'coding' | 'break') {
+    if (!currentUser) {
+        vscode.window.showWarningMessage('DevPulse: Please sign in to log sessions.');
+        return;
+    }
     if (durationMinutes <= 0) {
         console.warn(`[DevPulse] Attempted to log a session with zero or negative duration. Type: ${sessionType}`);
         return; // Don't log sessions with no duration
     }
 
     try {
-        await addDoc(collection(db, "coding_sessions"), {
-            userId: USER_ID,
+        await addDoc(collection(db, "sessions"), {
+            userId: currentUser.uid, // Use authenticated user's UID
             startTime: serverTimestamp(), // Use server time for consistency
             durationMinutes: durationMinutes,
             sessionType: sessionType
@@ -80,6 +85,18 @@ export function activate(context: vscode.ExtensionContext) {
     const out = vscode.window.createOutputChannel('DevPulse');
     out.appendLine('--- DevPulse Extension Activation Attempted ---');
 
+    // Listen for auth state changes
+    onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        if (user) {
+            console.log('[DevPulse] User signed in:', user.email);
+            vscode.window.showInformationMessage(`DevPulse: Signed in as ${user.email}`);
+        } else {
+            console.log('[DevPulse] User signed out');
+            vscode.window.showInformationMessage('DevPulse: Signed out');
+        }
+    });
+
     // 1. Register the Start Session command
     context.subscriptions.push(
         vscode.commands.registerCommand('devpulse.startSession', handleStartSession)
@@ -93,6 +110,35 @@ export function activate(context: vscode.ExtensionContext) {
     // 3. Register the Log Break command
     context.subscriptions.push(
         vscode.commands.registerCommand('devpulse.logBreak', handleLogBreak)
+    );
+
+    // New command for signing in
+    context.subscriptions.push(
+        vscode.commands.registerCommand('devpulse.signIn', async () => {
+            const email = await vscode.window.showInputBox({ prompt: "Enter your Firebase email" });
+            const password = await vscode.window.showInputBox({ prompt: "Enter your Firebase password", password: true });
+
+            if (email && password) {
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    // currentUser will be set by onAuthStateChanged listener
+                } catch (error: any) {
+                    vscode.window.showErrorMessage(`DevPulse Sign-in failed: ${error.message}`);
+                }
+            }
+        })
+    );
+
+    // New command for signing out
+    context.subscriptions.push(
+        vscode.commands.registerCommand('devpulse.signOut', async () => {
+            try {
+                await signOut(auth);
+                // currentUser will be set to null by onAuthStateChanged listener
+            } catch (error: any) {
+                vscode.window.showErrorMessage(`DevPulse Sign-out failed: ${error.message}`);
+            }
+        })
     );
 
     // 4. Register a diagnostic command to test Firestore writes (returns structured result)
