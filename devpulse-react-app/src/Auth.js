@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { auth } from './firebase/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -32,6 +32,17 @@ const Auth = () => {
       setError('');
       await signOut(auth);
       alert('Signed out successfully!');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleGitHubSignIn = async () => {
+    try {
+      setError('');
+      const provider = new GithubAuthProvider();
+      await signInWithPopup(auth, provider);
+      alert('Signed in with GitHub successfully!');
     } catch (err) {
       setError(err.message);
     }
@@ -118,6 +129,7 @@ const Auth = () => {
       <div>
         <button onClick={handleSignUp} style={primaryButtonStyle}>Sign Up</button>
         <button onClick={handleSignIn} style={primaryButtonStyle}>Sign In</button>
+        <button onClick={handleGitHubSignIn} style={{ ...primaryButtonStyle, backgroundColor: '#1f2937', marginLeft: '10px' }}>Sign In with GitHub</button>
         {/* <button onClick={handleSignOut} style={secondaryButtonStyle}>Sign Out</button> */}
       </div>
       {error && <p style={errorStyle}>{error}</p>}
