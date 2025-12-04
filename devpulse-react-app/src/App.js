@@ -22,7 +22,7 @@ function App() {
    
   return (
     <div style={containerStyle}>
-      <h1 style={{ color: '#2563eb', borderBottom: '2px solid #eee', paddingBottom: '10px' }}>DevPulse Dashboard</h1>
+      {/* <h1 style={{ color: '#2563eb', borderBottom: '2px solid #eee', paddingBottom: '10px' }}>DevPulse Dashboard</h1> */} 
       
       {!user ? (
         <Auth />

@@ -199,18 +199,73 @@ const Dashboard = ({ user }) => {
     }
   };
 
-  const containerStyle = { maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'Arial', color: '#333' };
-  const cardStyle = { padding: '15px', margin: '10px 0', border: '1px solid #ddd', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9f9f9' };
-  const filterButtonStyle = (active) => ({ 
-    backgroundColor: active ? '#2563eb' : '#e5e7eb', 
-    color: active ? 'white' : '#374151', 
-    padding: '8px 12px', 
-    borderRadius: '5px', 
+  const containerStyle = { 
+    maxWidth: '900px', 
+    margin: '40px auto', 
+    padding: '30px', 
+    fontFamily: "'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif", 
+    color: '#333', 
+    backgroundColor: '#f9fafb', 
+    borderRadius: '12px', 
+    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+  };
+  const headerStyle = { 
+    color: '#1d4ed8', 
+    borderBottom: '2px solid #e5e7eb', 
+    paddingBottom: '15px', 
+    marginBottom: '30px', 
+    fontSize: '2.2em', 
+    fontWeight: '700' 
+  };
+  const sectionTitleStyle = { 
+    color: '#1f2937', 
+    borderBottom: '1px solid #e5e7eb', 
+    paddingBottom: '10px', 
+    marginBottom: '20px', 
+    fontSize: '1.6em', 
+    fontWeight: '600' 
+  };
+  const buttonBaseStyle = { 
+    padding: '10px 20px', 
+    borderRadius: '8px', 
     cursor: 'pointer', 
     border: 'none', 
-    margin: '0 5px', 
-    fontSize: '14px' 
-  });
+    fontSize: '1em', 
+    fontWeight: '600', 
+    transition: 'all 0.2s ease-in-out' 
+  };
+  const primaryButtonStyle = { 
+    ...buttonBaseStyle, 
+    backgroundColor: '#2563eb', 
+    color: 'white', 
+    '&:hover': { backgroundColor: '#1e40af' } 
+  };
+  const secondaryButtonStyle = { 
+    ...buttonBaseStyle, 
+    backgroundColor: '#e5e7eb', 
+    color: '#374151', 
+    '&:hover': { backgroundColor: '#d1d5db' } 
+  };
+  const cardStyle = { 
+    padding: '15px', 
+    margin: '10px 0', 
+    border: '1px solid #e5e7eb', 
+    borderRadius: '8px', 
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    background: '#ffffff', 
+    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' 
+  };
+  const inputStyle = { 
+    width: '100%', 
+    padding: '10px', 
+    margin: '8px 0', 
+    borderRadius: '6px', 
+    border: '1px solid #d1d5db', 
+    fontSize: '1em', 
+    boxSizing: 'border-box' 
+  };
 
   const filteredSessions = sessions.filter(session => {
     if (sessionFilter === 'today') {
@@ -223,107 +278,112 @@ const Dashboard = ({ user }) => {
    
   return (
     <div style={containerStyle}>
-      <h1 style={{ color: '#2563eb', borderBottom: '2px solid #eee', paddingBottom: '10px' }}>DevPulse Dashboard</h1>
+      <h1 style={headerStyle}>DevPulse Dashboard</h1>
       
-      <h2 style={{ color: '#2563eb' }}>Today's Productivity Score: {typeof todaysScore === 'number' ? todaysScore.toFixed(1) : todaysScore}</h2>
-      <p>Current Streak: {currentStreak} days | Longest Streak: {longestStreak} days</p>
+      {/* Removed Add Random Test Session button */}
 
-      <h2>GitHub Repository Configuration</h2>
-      <div style={{ marginBottom: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#fff' }}>
-        <p>Enter your GitHub username and the repository you want to track commits for.</p>
+      <h2 style={sectionTitleStyle}>Today's Productivity Score: {typeof todaysScore === 'number' ? todaysScore.toFixed(1) : todaysScore}</h2>
+      <p style={{ fontSize: '1.1em', color: '#4b5563', marginBottom: '30px' }}>
+        Current Streak: <strong style={{ color: '#16a34a' }}>{currentStreak} days</strong> | 
+        Longest Streak: <strong style={{ color: '#059669' }}>{longestStreak} days</strong>
+      </p>
+
+      <h2 style={sectionTitleStyle}>GitHub Repository Configuration</h2>
+      <div style={{ marginBottom: '40px', padding: '25px', border: '1px solid #e5e7eb', borderRadius: '12px', backgroundColor: '#ffffff', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.06)' }}>
+        <p style={{ marginBottom: '15px', color: '#4b5563' }}>Enter your GitHub username and the repository you want to track commits for.</p>
         <input
           type="text"
           placeholder="GitHub Username"
           value={githubUsername}
           onChange={(e) => setGithubUsername(e.target.value)}
-          style={{ width: '100%', padding: '8px', margin: '10px 0', borderRadius: '4px', border: '1px solid #ddd' }}
+          style={inputStyle}
         />
         <input
           type="text"
           placeholder="GitHub Repository Name"
           value={githubRepo}
           onChange={(e) => setGithubRepo(e.target.value)}
-          style={{ width: '100%', padding: '8px', margin: '10px 0', borderRadius: '4px', border: '1px solid #ddd' }}
+          style={inputStyle}
         />
         <button 
           onClick={saveGithubConfig}
-          style={{ backgroundColor: '#10b981', color: 'white', padding: '10px 15px', borderRadius: '5px', cursor: 'pointer', border: 'none', fontSize: '16px' }}
+          style={{ ...primaryButtonStyle, marginTop: '15px' }}
         >
           Save GitHub Config
         </button>
       </div>
 
-      <h2>Recent GitHub Commits</h2>
-      <div style={{ marginBottom: '40px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#fff' }}>
+      <h2 style={sectionTitleStyle}>Recent GitHub Commits</h2>
+      <div style={{ marginBottom: '40px', padding: '25px', border: '1px solid #e5e7eb', borderRadius: '12px', backgroundColor: '#ffffff', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.06)' }}>
         {commitsLoading ? (
           <p>Loading commits...</p>
         ) : commits.length > 0 ? (
           <ul>
             {commits.map(commit => (
-              <li key={commit.sha} style={{ marginBottom: '10px', borderBottom: '1px dotted #eee', paddingBottom: '5px' }}>
-                <strong>{commit.message}</strong><br/>
-                <span style={{ fontSize: '0.8em', color: '#555' }}>
+              <li key={commit.sha} style={{ marginBottom: '10px', borderBottom: '1px dotted #e5e7eb', paddingBottom: '5px', color: '#374151' }}>
+                <strong style={{ color: '#1f2937' }}>{commit.message}</strong><br/>
+                <span style={{ fontSize: '0.9em', color: '#6b7280' }}>
                   {commit.author} on {commit.date.toLocaleString()}
                 </span>
               </li>
             ))}
           </ul>
         ) : (
-          <p>No commits found for the configured repository or repository not configured.</p>
+          <p style={{ color: '#6b7280' }}>No commits found for the configured repository or repository not configured.</p>
         )}
       </div>
 
-      <h2>Daily Activity Chart</h2>
-      <div style={{ marginBottom: '40px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#fff' }}>
+      <h2 style={sectionTitleStyle}>Daily Activity Chart</h2>
+      <div style={{ marginBottom: '40px', padding: '25px', border: '1px solid #e5e7eb', borderRadius: '12px', backgroundColor: '#ffffff', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.06)' }}>
           {sessions.length > 0 ? (
               <Bar data={chartData} options={chartOptions} />
           ) : (
-              <p>Click "Add Random Test Session" to generate data and see the chart!</p>
+              <p style={{ color: '#6b7280' }}>Log sessions via the VS Code extension to see your daily activity!</p>
           )}
       </div>
       
-      <h2>Sessions Per Day</h2>
-      <div style={{ marginBottom: '40px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#fff' }}>
+      <h2 style={sectionTitleStyle}>Sessions Per Day</h2>
+      <div style={{ marginBottom: '40px', padding: '25px', border: '1px solid #e5e7eb', borderRadius: '12px', backgroundColor: '#ffffff', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.06)' }}>
           {sessions.length > 0 ? (
               <Bar data={sessionCountChartData} options={singleBarChartOptions} />
           ) : (
-              <p>Click "Add Random Test Session" to generate data and see the chart!</p>
+              <p style={{ color: '#6b7280' }}>Log sessions via the VS Code extension to see your sessions per day!</p>
           )}
       </div>
 
-      <h2>Average Session Length Per Day</h2>
-      <div style={{ marginBottom: '40px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#fff' }}>
+      <h2 style={sectionTitleStyle}>Average Session Length Per Day</h2>
+      <div style={{ marginBottom: '40px', padding: '25px', border: '1px solid #e5e7eb', borderRadius: '12px', backgroundColor: '#ffffff', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.06)' }}>
           {sessions.length > 0 ? (
               <Bar data={averageSessionLengthChartData} options={singleBarChartOptions} />
           ) : (
-              <p>Click "Add Random Test Session" to generate data and see the chart!</p>
+              <p style={{ color: '#6b7280' }}>Log sessions via the VS Code extension to see your average session length!</p>
           )}
       </div>
 
-      <h2>Recent Sessions</h2>
-      <div style={{ marginBottom: '20px' }}>
-        <button onClick={() => setSessionFilter('today')} style={filterButtonStyle(sessionFilter === 'today')}>Today</button>
-        <button onClick={() => setSessionFilter('thisWeek')} style={filterButtonStyle(sessionFilter === 'thisWeek')}>This Week</button>
-        <button onClick={() => setSessionFilter('all')} style={filterButtonStyle(sessionFilter === 'all')}>All</button>
+      <h2 style={sectionTitleStyle}>Recent Sessions</h2>
+      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+        <button onClick={() => setSessionFilter('today')} style={sessionFilter === 'today' ? primaryButtonStyle : secondaryButtonStyle}>Today</button>
+        <button onClick={() => setSessionFilter('thisWeek')} style={sessionFilter === 'thisWeek' ? primaryButtonStyle : secondaryButtonStyle}>This Week</button>
+        <button onClick={() => setSessionFilter('all')} style={sessionFilter === 'all' ? primaryButtonStyle : secondaryButtonStyle}>All</button>
       </div>
       
       {loading ? (
-        <p>Loading data...</p>
+        <p style={{ color: '#4b5563' }}>Loading data...</p>
       ) : (
         <div>
           {filteredSessions.length === 0 ? (
-            <p style={{ color: '#777' }}>No sessions logged for this period.</p>
+            <p style={{ color: '#6b7280' }}>No sessions logged for this period.</p>
           ) : (
-            <div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
               {filteredSessions.map((session) => (
                 <div key={session.id} style={cardStyle}>
                   <div>
-                    <strong style={{ textTransform: 'capitalize' }}>{session.type} Session</strong>
-                    <p style={{ fontSize: '0.9em', color: '#555' }}>
+                    <strong style={{ textTransform: 'capitalize', color: '#1f2937' }}>{session.type} Session</strong>
+                    <p style={{ fontSize: '0.9em', color: '#6b7280', marginTop: '5px' }}>
                        {session.startTime ? session.startTime.toLocaleString() : 'Time not recorded'}
                     </p>
                   </div>
-                  <span style={{ backgroundColor: session.type === 'coding' ? '#dcfce7' : '#fee2e2', color: session.type === 'coding' ? '#16a34a' : '#ef4444', padding: '5px 10px', borderRadius: '15px', fontWeight: 'bold' }}>
+                  <span style={{ backgroundColor: session.type === 'coding' ? '#d1fae5' : '#fee2e2', color: session.type === 'coding' ? '#065f46' : '#991b1b', padding: '6px 12px', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.9em' }}>
                           {session.durationMinutes} min
                   </span>
                 </div>
