@@ -1,10 +1,14 @@
-export const fetchCommits = async (username, repo) => {
+export const fetchCommits = async (username, repo, token = null) => {
   if (!username || !repo) {
     return [];
   }
 
   try {
-    const response = await fetch(`https://api.github.com/repos/${username}/${repo}/commits`);
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `token ${token}`;
+    }
+    const response = await fetch(`https://api.github.com/repos/${username}/${repo}/commits`, { headers });
     if (!response.ok) {
       throw new Error(`GitHub API error: ${response.statusText}`);
     }

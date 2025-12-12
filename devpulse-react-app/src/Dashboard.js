@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { db } from "./firebase/firebase";
 import {
   collection,
@@ -17,14 +17,31 @@ import { fetchCommits } from './utils/githubApi'; // Import fetchCommits
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, ScatterController);
 
+// Debounce utility function
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+};
+
 const Dashboard = ({ user }) => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sessionFilter, setSessionFilter] = useState('all'); // 'all', 'today', 'thisWeek'
   const [githubUsername, setGithubUsername] = useState('');
   const [githubRepo, setGithubRepo] = useState('');
+  const [githubToken, setGithubToken] = useState(''); // New state for GitHub Token
   const [commits, setCommits] = useState([]);
   const [commitsLoading, setCommitsLoading] = useState(false);
+
+  // Debounced setters
+  const debouncedSetGithubUsername = useCallback(debounce((value) => setGithubUsername(value), 500), []);
+  const debouncedSetGithubRepo = useCallback(debounce((value) => setGithubRepo(value), 500), []);
+  const debouncedSetGithubToken = useCallback(debounce((value) => setGithubToken(value), 500), []);
 
   // Function to load GitHub config from Firestore
   const loadGithubConfig = async (uid) => {
@@ -36,6 +53,7 @@ const Dashboard = ({ user }) => {
         const data = docSnap.data();
         setGithubUsername(data.githubUsername || '');
         setGithubRepo(data.githubRepo || '');
+        setGithubToken(data.githubToken || ''); // Load GitHub Token
       }
     } catch (error) {
       console.error("Error loading GitHub config:", error);
@@ -50,6 +68,7 @@ const Dashboard = ({ user }) => {
       await setDoc(userConfigRef, {
         githubUsername: githubUsername,
         githubRepo: githubRepo,
+        githubToken: githubToken, // Save GitHub Token
       }, { merge: true }); // Use merge: true to avoid overwriting other fields
       alert('GitHub configuration saved!');
     } catch (error) {
@@ -90,20 +109,24 @@ const Dashboard = ({ user }) => {
     }
   }, [user]);
 
-  // Effect to fetch commits when username or repo changes
+  // Effect to fetch commits when username, repo, or token changes
   useEffect(() => {
     const getGithubCommits = async () => {
       if (githubUsername && githubRepo) {
         setCommitsLoading(true);
-        const fetchedCommits = await fetchCommits(githubUsername, githubRepo);
+        const fetchedCommits = await fetchCommits(githubUsername, githubRepo, githubToken);
         setCommits(fetchedCommits);
         setCommitsLoading(false);
       } else {
         setCommits([]);
       }
     };
-    getGithubCommits();
-  }, [githubUsername, githubRepo]);
+    // Only fetch commits if githubUsername and githubRepo are available and githubToken changes.
+    // This prevents fetching with incomplete data and reduces unnecessary API calls.
+    if (githubUsername && githubRepo) {
+      getGithubCommits();
+    }
+  }, [githubUsername, githubRepo, githubToken]);
 
   const dailyMetrics = calculateDailyMetrics(sessions);
   const { currentStreak, longestStreak } = calculateStreaks(dailyMetrics);
@@ -123,9 +146,13 @@ const Dashboard = ({ user }) => {
   const sessionCountData = chartLabels.map(date => dailyMetrics[date].sessionCount);
   const averageSessionLengthData = chartLabels.map(date => dailyMetrics[date].averageSessionLength);
 
+  // Calculate max Y value for positioning commit pulses
+  const allChartDataValues = [...codingData, ...breakData].filter(value => value != null);
+  const maxYValue = allChartDataValues.length > 0 ? Math.max(...allChartDataValues) : 10; // Default to 10 if no data
+
   // Prepare commit data for charting
   const commitDates = commits.map(commit => commit.date.toISOString().split('T')[0]);
-  const commitChartData = chartLabels.map(date => commitDates.includes(date) ? ChartJS.registry.getScale('y').max * 0.9 : null); // Position at 90% of max Y-axis
+  const commitChartData = chartLabels.map(date => commitDates.includes(date) ? maxYValue * 0.9 : null); // Position at 90% of max Y-axis
 
   const chartData = {
     labels: chartLabels,
@@ -295,14 +322,21 @@ const Dashboard = ({ user }) => {
           type="text"
           placeholder="GitHub Username"
           value={githubUsername}
-          onChange={(e) => setGithubUsername(e.target.value)}
+          onChange={(e) => debouncedSetGithubUsername(e.target.value)}
           style={inputStyle}
         />
         <input
           type="text"
           placeholder="GitHub Repository Name"
           value={githubRepo}
-          onChange={(e) => setGithubRepo(e.target.value)}
+          onChange={(e) => debouncedSetGithubRepo(e.target.value)}
+          style={inputStyle}
+        />
+        <input
+          type="password"
+          placeholder="GitHub Personal Access Token (Optional)"
+          value={githubToken}
+          onChange={(e) => debouncedSetGithubToken(e.target.value)}
           style={inputStyle}
         />
         <button 
