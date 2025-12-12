@@ -35,13 +35,16 @@ const Dashboard = ({ user }) => {
   const [githubUsername, setGithubUsername] = useState('');
   const [githubRepo, setGithubRepo] = useState('');
   const [githubToken, setGithubToken] = useState(''); // New state for GitHub Token
+  const [configuredGithubUsername, setConfiguredGithubUsername] = useState('');
+  const [configuredGithubRepo, setConfiguredGithubRepo] = useState('');
+  const [configuredGithubToken, setConfiguredGithubToken] = useState('');
   const [commits, setCommits] = useState([]);
   const [commitsLoading, setCommitsLoading] = useState(false);
 
   // Debounced setters
-  const debouncedSetGithubUsername = useCallback(debounce((value) => setGithubUsername(value), 500), []);
-  const debouncedSetGithubRepo = useCallback(debounce((value) => setGithubRepo(value), 500), []);
-  const debouncedSetGithubToken = useCallback(debounce((value) => setGithubToken(value), 500), []);
+  // const debouncedSetGithubUsername = useCallback(debounce((value) => setGithubUsername(value), 500), []);
+  // const debouncedSetGithubRepo = useCallback(debounce((value) => setGithubRepo(value), 500), []);
+  // const debouncedSetGithubToken = useCallback(debounce((value) => setGithubToken(value), 500), []);
 
   // Function to load GitHub config from Firestore
   const loadGithubConfig = async (uid) => {
@@ -53,7 +56,10 @@ const Dashboard = ({ user }) => {
         const data = docSnap.data();
         setGithubUsername(data.githubUsername || '');
         setGithubRepo(data.githubRepo || '');
-        setGithubToken(data.githubToken || ''); // Load GitHub Token
+        setGithubToken(data.githubToken || '');
+        setConfiguredGithubUsername(data.githubUsername || '');
+        setConfiguredGithubRepo(data.githubRepo || '');
+        setConfiguredGithubToken(data.githubToken || '');
       }
     } catch (error) {
       console.error("Error loading GitHub config:", error);
@@ -70,6 +76,9 @@ const Dashboard = ({ user }) => {
         githubRepo: githubRepo,
         githubToken: githubToken, // Save GitHub Token
       }, { merge: true }); // Use merge: true to avoid overwriting other fields
+      setConfiguredGithubUsername(githubUsername);
+      setConfiguredGithubRepo(githubRepo);
+      setConfiguredGithubToken(githubToken);
       alert('GitHub configuration saved!');
     } catch (error) {
       console.error("Error saving GitHub config:", error);
@@ -112,21 +121,21 @@ const Dashboard = ({ user }) => {
   // Effect to fetch commits when username, repo, or token changes
   useEffect(() => {
     const getGithubCommits = async () => {
-      if (githubUsername && githubRepo) {
+      if (configuredGithubUsername && configuredGithubRepo) {
         setCommitsLoading(true);
-        const fetchedCommits = await fetchCommits(githubUsername, githubRepo, githubToken);
+        const fetchedCommits = await fetchCommits(configuredGithubUsername, configuredGithubRepo, configuredGithubToken);
         setCommits(fetchedCommits);
         setCommitsLoading(false);
       } else {
         setCommits([]);
       }
     };
-    // Only fetch commits if githubUsername and githubRepo are available and githubToken changes.
-    // This prevents fetching with incomplete data and reduces unnecessary API calls.
-    if (githubUsername && githubRepo) {
+    // Only fetch commits if configuredGithubUsername and configuredGithubRepo are available.
+    // API calls are now triggered only when the configuration is explicitly saved.
+    if (configuredGithubUsername && configuredGithubRepo) {
       getGithubCommits();
     }
-  }, [githubUsername, githubRepo, githubToken]);
+  }, [configuredGithubUsername, configuredGithubRepo, configuredGithubToken]);
 
   const dailyMetrics = calculateDailyMetrics(sessions);
   const { currentStreak, longestStreak } = calculateStreaks(dailyMetrics);
@@ -322,21 +331,21 @@ const Dashboard = ({ user }) => {
           type="text"
           placeholder="GitHub Username"
           value={githubUsername}
-          onChange={(e) => debouncedSetGithubUsername(e.target.value)}
+          onChange={(e) => setGithubUsername(e.target.value)}
           style={inputStyle}
         />
         <input
           type="text"
           placeholder="GitHub Repository Name"
           value={githubRepo}
-          onChange={(e) => debouncedSetGithubRepo(e.target.value)}
+          onChange={(e) => setGithubRepo(e.target.value)}
           style={inputStyle}
         />
         <input
           type="password"
           placeholder="GitHub Personal Access Token (Optional)"
           value={githubToken}
-          onChange={(e) => debouncedSetGithubToken(e.target.value)}
+          onChange={(e) => setGithubToken(e.target.value)}
           style={inputStyle}
         />
         <button 
