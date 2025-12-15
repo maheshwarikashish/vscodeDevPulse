@@ -42,6 +42,10 @@
       {
         "command": "devpulse.signOut",
         "title": "DevPulse: Sign Out"
+      },
+      {
+        "command": "devpulse.signInWithGitHub",
+        "title": "DevPulse: Sign In with GitHub"
       }
     ]
   },

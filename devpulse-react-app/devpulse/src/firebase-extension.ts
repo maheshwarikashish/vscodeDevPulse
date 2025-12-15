@@ -95,7 +95,7 @@ function serverTimestamp() {
   return fbServerTimestamp();
 }
 
-export { db, auth, collection, addDoc, serverTimestamp };
+export { db, auth, collection, addDoc, serverTimestamp, GithubAuthProvider, signInWithCredential };
 
 // Diagnostic helper: attempt a single test write and return structured result for debugging.
 async function testWrite() {
