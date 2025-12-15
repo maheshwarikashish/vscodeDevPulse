@@ -1,6 +1,6 @@
 // src/extension.ts
 import * as vscode from 'vscode';
-import { db, collection, addDoc, serverTimestamp, testWrite, auth } from './firebase-extension'; // consolidated import
+import { db, collection, addDoc, serverTimestamp, testWrite, auth, GithubAuthProvider, signInWithCredential } from './firebase-extension'; // consolidated import
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
 // Global variable to track the start time of the current session
 let sessionStartTime: Date | null = null;
@@ -137,6 +137,24 @@ export function activate(context: vscode.ExtensionContext) {
                 // currentUser will be set to null by onAuthStateChanged listener
             } catch (error: any) {
                 vscode.window.showErrorMessage(`DevPulse Sign-out failed: ${error.message}`);
+            }
+        })
+    );
+
+    // New command for signing in with GitHub
+    context.subscriptions.push(
+        vscode.commands.registerCommand('devpulse.signInWithGitHub', async () => {
+            try {
+                const session = await vscode.authentication.getSession('github', ['user:email', 'repo'], { createIfNone: true });
+                if (session) {
+                    const credential = GithubAuthProvider.credential(session.accessToken);
+                    await signInWithCredential(auth, credential);
+                    vscode.window.showInformationMessage('DevPulse: Signed in with GitHub successfully!');
+                } else {
+                    vscode.window.showWarningMessage('DevPulse: GitHub sign-in cancelled or failed to get session.');
+                }
+            } catch (error: any) {
+                vscode.window.showErrorMessage(`DevPulse GitHub Sign-in failed: ${error.message}`);
             }
         })
     );
