@@ -10,7 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "*",
+    "onCommand:devpulse.signInWithGitHub"
   ],
   "main": "./dist/extension.js",
   "contributes": {
