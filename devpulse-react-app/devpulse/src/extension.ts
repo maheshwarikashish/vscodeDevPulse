@@ -144,18 +144,10 @@ export function activate(context: vscode.ExtensionContext) {
     // New command for signing in with GitHub
     context.subscriptions.push(
         vscode.commands.registerCommand('devpulse.signInWithGitHub', async () => {
-            try {
-                const session = await vscode.authentication.getSession('github', ['user:email', 'repo'], { createIfNone: true });
-                if (session) {
-                    const credential = GithubAuthProvider.credential(session.accessToken);
-                    await signInWithCredential(auth, credential);
-                    vscode.window.showInformationMessage('DevPulse: Signed in with GitHub successfully!');
-                } else {
-                    vscode.window.showWarningMessage('DevPulse: GitHub sign-in cancelled or failed to get session.');
-                }
-            } catch (error: any) {
-                vscode.window.showErrorMessage(`DevPulse GitHub Sign-in failed: ${error.message}`);
-            }
+            vscode.window.showInformationMessage('DevPulse: For GitHub sign-in, please use the DevPulse web application to authenticate. Once authenticated there, your session should be recognized here.');
+            // Alternatively, one could try to open the Firebase GitHub sign-in page in an external browser:
+            // const githubSignInUrl = 'YOUR_FIREBASE_GITHUB_SIGN_IN_URL_HERE'; // This URL needs to be constructed carefully
+            // vscode.env.openExternal(vscode.Uri.parse(githubSignInUrl));
         })
     );
 
