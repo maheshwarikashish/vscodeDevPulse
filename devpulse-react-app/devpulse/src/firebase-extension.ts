@@ -2,7 +2,7 @@
 
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection as fbCollection, addDoc as fbAddDoc, serverTimestamp as fbServerTimestamp, connectFirestoreEmulator as fbConnectEmulator } from "firebase/firestore";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithCredential } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithCredential, signInWithCustomToken } from "firebase/auth";
 
 // REPLACE WITH YOUR CONFIG OBJECT FROM PHASE 1
 const firebaseConfig = {

@@ -1,6 +1,6 @@
 // src/extension.ts
 import * as vscode from 'vscode';
-import { db, collection, addDoc, serverTimestamp, testWrite, auth, GithubAuthProvider, signInWithCredential } from './firebase-extension'; // consolidated import
+import { db, collection, addDoc, serverTimestamp, testWrite, auth, GithubAuthProvider, signInWithCredential, signInWithCustomToken } from './firebase-extension'; // consolidated import
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
 // Global variable to track the start time of the current session
 let sessionStartTime: Date | null = null;
@@ -145,9 +145,23 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('devpulse.signInWithGitHub', async () => {
             vscode.window.showInformationMessage('DevPulse: For GitHub sign-in, please use the DevPulse web application to authenticate. Once authenticated there, your session should be recognized here.');
-            // Alternatively, one could try to open the Firebase GitHub sign-in page in an external browser:
-            // const githubSignInUrl = 'YOUR_FIREBASE_GITHUB_SIGN_IN_URL_HERE'; // This URL needs to be constructed carefully
-            // vscode.env.openExternal(vscode.Uri.parse(githubSignInUrl));
+        })
+    );
+
+    // New command for signing in with Firebase ID Token
+    context.subscriptions.push(
+        vscode.commands.registerCommand('devpulse.signInWithIdToken', async () => {
+            const idToken = await vscode.window.showInputBox({ prompt: "Enter your Firebase ID Token from the web app" });
+            if (idToken) {
+                try {
+                    await signInWithCustomToken(auth, idToken);
+                    vscode.window.showInformationMessage('DevPulse: Signed in with ID Token successfully!');
+                } catch (error: any) {
+                    vscode.window.showErrorMessage(`DevPulse ID Token Sign-in failed: ${error.message}`);
+                }
+            } else {
+                vscode.window.showWarningMessage('DevPulse: ID Token not provided.');
+            }
         })
     );
 

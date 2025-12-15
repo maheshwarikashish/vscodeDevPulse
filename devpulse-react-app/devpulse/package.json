@@ -11,7 +11,8 @@
   ],
   "activationEvents": [
     "*",
-    "onCommand:devpulse.signInWithGitHub"
+    "onCommand:devpulse.signInWithGitHub",
+    "onCommand:devpulse.signInWithIdToken"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -47,6 +48,10 @@
       {
         "command": "devpulse.signInWithGitHub",
         "title": "DevPulse: Sign In with GitHub"
+      },
+      {
+        "command": "devpulse.signInWithIdToken",
+        "title": "DevPulse: Sign In with ID Token"
       }
     ]
   },
