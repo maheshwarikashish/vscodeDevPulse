@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { auth } from './firebase/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithPopup, EmailAuthProvider, linkWithCredential, fetchSignInMethodsForEmail } from 'firebase/auth';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -23,7 +23,24 @@ const Auth = () => {
       await signInWithEmailAndPassword(auth, email, password);
       alert('Signed in successfully!');
     } catch (err) {
-      setError(err.message);
+      if (err.code === 'auth/account-exists-with-different-credential') {
+        const pendingCred = EmailAuthProvider.credential(email, password);
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+
+        if (methods.includes(GithubAuthProvider.PROVIDER_ID) && auth.currentUser) {
+          // User is already signed in with GitHub, try to link the email/password
+          try {
+            await linkWithCredential(auth.currentUser, pendingCred);
+            alert('Account linked and signed in successfully!');
+          } catch (linkError) {
+            setError(`Failed to link account: ${linkError.message}`);
+          }
+        } else {
+          setError('Account exists with different credential. Please sign in with GitHub first, then link your email and password in your profile settings if you wish.');
+        }
+      } else {
+        setError(err.message);
+      }
     }
   };
 
