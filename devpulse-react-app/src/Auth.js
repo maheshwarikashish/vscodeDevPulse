@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { auth } from './firebase/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithPopup, EmailAuthProvider, linkWithCredential, fetchSignInMethodsForEmail } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithPopup, EmailAuthProvider, linkWithCredential, fetchSignInMethodsForEmail, getIdTokenResult } from 'firebase/auth';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +12,12 @@ const Auth = () => {
       setError('');
       await createUserWithEmailAndPassword(auth, email, password);
       alert('Signed up successfully!');
+      // Display ID Token after sign up
+      if (auth.currentUser) {
+        const idTokenResult = await auth.currentUser.getIdTokenResult(true);
+        alert(`Firebase ID Token: ${idTokenResult.token}`);
+        console.log('Firebase ID Token:', idTokenResult.token);
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -22,6 +28,12 @@ const Auth = () => {
       setError('');
       await signInWithEmailAndPassword(auth, email, password);
       alert('Signed in successfully!');
+      // Display ID Token after sign in
+      if (auth.currentUser) {
+        const idTokenResult = await auth.currentUser.getIdTokenResult(true);
+        alert(`Firebase ID Token: ${idTokenResult.token}`);
+        console.log('Firebase ID Token:', idTokenResult.token);
+      }
     } catch (err) {
       if (err.code === 'auth/account-exists-with-different-credential') {
         const pendingCred = EmailAuthProvider.credential(email, password);
@@ -32,6 +44,10 @@ const Auth = () => {
           try {
             await linkWithCredential(auth.currentUser, pendingCred);
             alert('Account linked and signed in successfully!');
+            // Display ID Token after linking
+            const idTokenResult = await auth.currentUser.getIdTokenResult(true);
+            alert(`Firebase ID Token: ${idTokenResult.token}`);
+            console.log('Firebase ID Token:', idTokenResult.token);
           } catch (linkError) {
             setError(`Failed to link account: ${linkError.message}`);
           }
@@ -60,6 +76,12 @@ const Auth = () => {
       const provider = new GithubAuthProvider();
       await signInWithPopup(auth, provider);
       alert('Signed in with GitHub successfully!');
+      // Display ID Token after GitHub sign-in
+      if (auth.currentUser) {
+        const idTokenResult = await auth.currentUser.getIdTokenResult(true);
+        alert(`Firebase ID Token: ${idTokenResult.token}`);
+        console.log('Firebase ID Token:', idTokenResult.token);
+      }
     } catch (err) {
       setError(err.message);
     }
