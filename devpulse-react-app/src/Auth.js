@@ -70,17 +70,23 @@ const Auth = () => {
     }
   };
 
+  // Auth.js (Snippet for GitHub Sign-In)
+
   const handleGitHubSignIn = async () => {
     try {
-      setError('');
-      const provider = new GithubAuthProvider();
+      // ... sign-in logic ...
       await signInWithPopup(auth, provider);
       alert('Signed in with GitHub successfully!');
-      // Display ID Token after GitHub sign-in
+
       if (auth.currentUser) {
-        const idTokenResult = await auth.currentUser.getIdTokenResult(true);
-        alert(`Firebase ID Token: ${idTokenResult.token}`);
-        console.log('Firebase ID Token:', idTokenResult.token);
+        // This line forces a refresh and retrieves the current ID Token
+        const idTokenResult = await auth.currentUser.getIdTokenResult(true); 
+        
+        // This alert is temporary but confirms the token is available
+        alert(`Firebase ID Token: ${idTokenResult.token}`); 
+        
+        // THIS IS THE CRITICAL LINE you need to look for in the browser's console!
+        console.log('Firebase ID Token:', idTokenResult.token); 
       }
     } catch (err) {
       setError(err.message);

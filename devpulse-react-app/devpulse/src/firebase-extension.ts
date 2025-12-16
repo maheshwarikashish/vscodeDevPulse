@@ -1,7 +1,8 @@
-// firebase-extension.ts
+// firebase-extension.ts (FIXED VERSION)
 
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection as fbCollection, addDoc as fbAddDoc, serverTimestamp as fbServerTimestamp, connectFirestoreEmulator as fbConnectEmulator } from "firebase/firestore";
+// IMPORTANT: Import all Auth functions you want to use/export
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithCredential, signInWithCustomToken } from "firebase/auth";
 
 // REPLACE WITH YOUR CONFIG OBJECT FROM PHASE 1
@@ -11,15 +12,14 @@ const firebaseConfig = {
   projectId: "code-45577",
   storageBucket: "code-45577.firebasestorage.app",
   messagingSenderId: "212800166176",
-  appId: "1:212800166176:web:04a40b82ae1eb0b7fe1f45"
+  appId: "1:212800166176:web:04a40b82ae1eb0b77fe1f45"
 };
 
 // Decide whether the config looks real or still placeholder values.
+// NOTE: Your config does NOT look like a placeholder, so this check will likely pass.
 const configIsPlaceholder = Object.values(firebaseConfig).some((v) => typeof v === 'string' && v.includes('...'));
 
-// Initialize Firebase safely. If initialization fails or config looks like a placeholder,
-// export safe stub functions. This prevents long-running Firestore retries in tests when
-// the user hasn't provided valid credentials yet.
+// Initialize Firebase safely.
 let db: any = null;
 let auth: any = null; // Declare auth variable
 if (configIsPlaceholder) {
@@ -33,7 +33,6 @@ if (configIsPlaceholder) {
     auth = getAuth(app); // Initialize Firebase Auth
 
     // If an emulator host is provided in the environment, connect to the local emulator
-    // This avoids using a paid cloud database during development/tests.
     try {
       const emulatorHost = process.env.FIRESTORE_EMULATOR_HOST || process.env.FIRESTORE_EMULATOR || null;
       if (emulatorHost) {
@@ -95,7 +94,22 @@ function serverTimestamp() {
   return fbServerTimestamp();
 }
 
-export { db, auth, collection, addDoc, serverTimestamp, GithubAuthProvider, signInWithCredential };
+// FIX APPLIED HERE: Re-exporting all necessary authentication methods
+export { 
+  db, 
+  auth, 
+  collection, 
+  addDoc, 
+  serverTimestamp, 
+  GithubAuthProvider, 
+  signInWithCredential, 
+  // ADDED: The missing export that caused the TS2459 error
+  signInWithCustomToken, 
+  // For completeness, you might also need these if extension.ts uses them:
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut
+};
 
 // Diagnostic helper: attempt a single test write and return structured result for debugging.
 async function testWrite() {
