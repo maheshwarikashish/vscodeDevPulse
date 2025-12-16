@@ -1,25 +1,16 @@
-
 {
     "version": "2.0.0",
     "tasks": [
         {
             "label": "compile-devpulse-extension",
             "type": "shell",
-          
             "command": "npm --prefix devpulse-react-app/devpulse run compile", 
-            "problemMatcher": "$vscode-webpack", 
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "presentation": {
-                "reveal": "always", 
+                "reveal": "always",
                 "panel": "new"
             },
-            "isBackground": true, 
-            "runOptions": {
-                "instanceLimit": 1
-            }
+            "problemMatcher": "$vscode-webpack" 
         }
     ]
 }

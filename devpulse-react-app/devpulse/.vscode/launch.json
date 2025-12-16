@@ -1,4 +1,3 @@
-
 {
     "version": "0.2.0",
     "configurations": [
@@ -7,18 +6,11 @@
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-         
-            "preLaunchTask": "compile-devpulse-extension", 
-            
+            "preLaunchTask": "compile-devpulse-extension",
             "args": [
-              
                 "--extensionDevelopmentPath=${workspaceFolder}/devpulse-react-app/devpulse",
-                
-               
                 "--user-data-dir=/tmp/devpulse-vscode-userdata"
             ],
-            
-           
             "outFiles": [
                 "${workspaceFolder}/devpulse-react-app/devpulse/dist/**/*.js"
             ]
