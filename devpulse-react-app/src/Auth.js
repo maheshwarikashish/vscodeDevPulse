@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'; // <-- ADDED useEffect import
+import React, { useState, useEffect } from 'react';
 import { auth } from './firebase/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithPopup, EmailAuthProvider, linkWithCredential, fetchSignInMethodsForEmail } from 'firebase/auth'; // Removed getIdTokenResult since it's used via user.getIdTokenResult
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithPopup, EmailAuthProvider, linkWithCredential, fetchSignInMethodsForEmail } from 'firebase/auth';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -11,7 +11,6 @@ const Auth = () => {
   // CORE FIX: Listener to print token AFTER successful sign-in/redirect
   // ------------------------------------------------------------------
   useEffect(() => {
-    // This listener fires whenever the user's authentication state changes (e.g., after login or refresh)
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
         // User is signed in. Fetch the token and print it clearly.
@@ -21,8 +20,6 @@ const Auth = () => {
             console.log("DEV PULSE VS CODE ID TOKEN (COPY BELOW):");
             console.log(token);
             console.log("-----------------------------------------");
-            // You can optionally remove the alert here if it's annoying:
-            // alert(`Firebase ID Token fetched and logged to console.`); 
           })
           .catch(error => {
             console.error("Error fetching ID Token in listener:", error);
@@ -31,18 +28,83 @@ const Auth = () => {
         console.log("User is signed out.");
       }
     });
-
-    // Clean up the listener when the component unmounts
     return () => unsubscribe();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []); 
   // ------------------------------------------------------------------
+
+  // ------------------------------------------------------------------
+  // BUILD FIX: STYLE DEFINITIONS MOVED INSIDE THE COMPONENT
+  // ------------------------------------------------------------------
+  const containerStyle = {
+    maxWidth: '400px',
+    margin: '80px auto',
+    padding: '30px',
+    fontFamily: "'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+    color: '#333',
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
+    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+    textAlign: 'center'
+  };
+
+  const titleStyle = {
+    color: '#1f2937',
+    fontSize: '1.8em',
+    fontWeight: '700',
+    marginBottom: '25px',
+  };
+
+  const inputStyle = {
+    width: 'calc(100% - 20px)',
+    padding: '12px 10px',
+    margin: '10px 0',
+    borderRadius: '8px',
+    border: '1px solid #d1d5db',
+    fontSize: '1em',
+    boxSizing: 'border-box',
+  };
+
+  const buttonStyle = {
+    padding: '10px 20px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    border: 'none',
+    fontSize: '1em',
+    fontWeight: '600',
+    transition: 'all 0.2s ease-in-out',
+    margin: '5px',
+    minWidth: '100px',
+  };
+
+  const primaryButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: '#2563eb',
+    color: 'white',
+    // Removed the '&:hover' properties as they are CSS-in-JS style objects and not standard JSX styles
+    // '&:hover': { backgroundColor: '#1e40af' }, 
+  };
+
+  const secondaryButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: '#e5e7eb',
+    color: '#374151',
+    // Removed the '&:hover' properties
+    // '&:hover': { backgroundColor: '#d1d5db' }, 
+  };
+
+  const errorStyle = {
+    color: '#dc2626',
+    marginTop: '15px',
+    fontSize: '0.9em',
+  };
+  // ------------------------------------------------------------------
+
 
   const handleSignUp = async () => {
     try {
       setError('');
       await createUserWithEmailAndPassword(auth, email, password);
       alert('Signed up successfully! Token is in the console.');
-      // REMOVED: Token printing logic is now in useEffect
     } catch (err) {
       setError(err.message);
     }
@@ -53,7 +115,6 @@ const Auth = () => {
       setError('');
       await signInWithEmailAndPassword(auth, email, password);
       alert('Signed in successfully! Token is in the console.');
-      // REMOVED: Token printing logic is now in useEffect
     } catch (err) {
       if (err.code === 'auth/account-exists-with-different-credential') {
         const pendingCred = EmailAuthProvider.credential(email, password);
@@ -63,7 +124,6 @@ const Auth = () => {
           try {
             await linkWithCredential(auth.currentUser, pendingCred);
             alert('Account linked and signed in successfully! Token is in the console.');
-            // REMOVED: Token printing logic is now in useEffect
           } catch (linkError) {
             setError(`Failed to link account: ${linkError.message}`);
           }
@@ -90,16 +150,12 @@ const Auth = () => {
     try {
       setError('');
       const provider = new GithubAuthProvider();
-      // The signInWithPopup often causes a refresh or unmount, which is why the listener is better
-      await signInWithPopup(auth, provider); 
+      await signInWithPopup(auth, provider);
       alert('Signed in with GitHub successfully! Token is in the console.');
-      // REMOVED: Token printing logic is now in useEffect
     } catch (err) {
       setError(err.message);
     }
   };
-  
-  // ... (JSX styling code remains the same) ...
 
   return (
     <div style={containerStyle}>
