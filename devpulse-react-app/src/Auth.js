@@ -1,23 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // <-- ADDED useEffect import
 import { auth } from './firebase/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithPopup, EmailAuthProvider, linkWithCredential, fetchSignInMethodsForEmail, getIdTokenResult } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithPopup, EmailAuthProvider, linkWithCredential, fetchSignInMethodsForEmail } from 'firebase/auth'; // Removed getIdTokenResult since it's used via user.getIdTokenResult
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  // ------------------------------------------------------------------
+  // CORE FIX: Listener to print token AFTER successful sign-in/redirect
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    // This listener fires whenever the user's authentication state changes (e.g., after login or refresh)
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in. Fetch the token and print it clearly.
+        user.getIdToken(/* forceRefresh */ true)
+          .then(token => {
+            console.log("-----------------------------------------");
+            console.log("DEV PULSE VS CODE ID TOKEN (COPY BELOW):");
+            console.log(token);
+            console.log("-----------------------------------------");
+            // You can optionally remove the alert here if it's annoying:
+            // alert(`Firebase ID Token fetched and logged to console.`); 
+          })
+          .catch(error => {
+            console.error("Error fetching ID Token in listener:", error);
+          });
+      } else {
+        console.log("User is signed out.");
+      }
+    });
+
+    // Clean up the listener when the component unmounts
+    return () => unsubscribe();
+  }, []); // Empty dependency array ensures this runs only once on mount
+  // ------------------------------------------------------------------
+
   const handleSignUp = async () => {
     try {
       setError('');
       await createUserWithEmailAndPassword(auth, email, password);
-      alert('Signed up successfully!');
-      // Display ID Token after sign up
-      if (auth.currentUser) {
-        const idTokenResult = await auth.currentUser.getIdTokenResult(true);
-        alert(`Firebase ID Token: ${idTokenResult.token}`);
-        console.log('Firebase ID Token:', idTokenResult.token);
-      }
+      alert('Signed up successfully! Token is in the console.');
+      // REMOVED: Token printing logic is now in useEffect
     } catch (err) {
       setError(err.message);
     }
@@ -27,27 +52,18 @@ const Auth = () => {
     try {
       setError('');
       await signInWithEmailAndPassword(auth, email, password);
-      alert('Signed in successfully!');
-      // Display ID Token after sign in
-      if (auth.currentUser) {
-        const idTokenResult = await auth.currentUser.getIdTokenResult(true);
-        alert(`Firebase ID Token: ${idTokenResult.token}`);
-        console.log('Firebase ID Token:', idTokenResult.token);
-      }
+      alert('Signed in successfully! Token is in the console.');
+      // REMOVED: Token printing logic is now in useEffect
     } catch (err) {
       if (err.code === 'auth/account-exists-with-different-credential') {
         const pendingCred = EmailAuthProvider.credential(email, password);
         const methods = await fetchSignInMethodsForEmail(auth, email);
 
         if (methods.includes(GithubAuthProvider.PROVIDER_ID) && auth.currentUser) {
-          // User is already signed in with GitHub, try to link the email/password
           try {
             await linkWithCredential(auth.currentUser, pendingCred);
-            alert('Account linked and signed in successfully!');
-            // Display ID Token after linking
-            const idTokenResult = await auth.currentUser.getIdTokenResult(true);
-            alert(`Firebase ID Token: ${idTokenResult.token}`);
-            console.log('Firebase ID Token:', idTokenResult.token);
+            alert('Account linked and signed in successfully! Token is in the console.');
+            // REMOVED: Token printing logic is now in useEffect
           } catch (linkError) {
             setError(`Failed to link account: ${linkError.message}`);
           }
@@ -70,89 +86,20 @@ const Auth = () => {
     }
   };
 
-  // Auth.js (Snippet for GitHub Sign-In)
-
   const handleGitHubSignIn = async () => {
     try {
-      // ... sign-in logic ...
-      await signInWithPopup(auth, provider);
-      alert('Signed in with GitHub successfully!');
-
-      if (auth.currentUser) {
-        // This line forces a refresh and retrieves the current ID Token
-        const idTokenResult = await auth.currentUser.getIdTokenResult(true); 
-        
-        // This alert is temporary but confirms the token is available
-        alert(`Firebase ID Token: ${idTokenResult.token}`); 
-        
-        // THIS IS THE CRITICAL LINE you need to look for in the browser's console!
-        console.log('Firebase ID Token:', idTokenResult.token); 
-      }
+      setError('');
+      const provider = new GithubAuthProvider();
+      // The signInWithPopup often causes a refresh or unmount, which is why the listener is better
+      await signInWithPopup(auth, provider); 
+      alert('Signed in with GitHub successfully! Token is in the console.');
+      // REMOVED: Token printing logic is now in useEffect
     } catch (err) {
       setError(err.message);
     }
   };
-
-  const containerStyle = {
-    maxWidth: '400px',
-    margin: '80px auto',
-    padding: '30px',
-    fontFamily: "'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
-    color: '#333',
-    backgroundColor: '#ffffff',
-    borderRadius: '12px',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    textAlign: 'center'
-  };
-
-  const titleStyle = {
-    color: '#1f2937',
-    fontSize: '1.8em',
-    fontWeight: '700',
-    marginBottom: '25px',
-  };
-
-  const inputStyle = {
-    width: 'calc(100% - 20px)',
-    padding: '12px 10px',
-    margin: '10px 0',
-    borderRadius: '8px',
-    border: '1px solid #d1d5db',
-    fontSize: '1em',
-    boxSizing: 'border-box',
-  };
-
-  const buttonStyle = {
-    padding: '10px 20px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    border: 'none',
-    fontSize: '1em',
-    fontWeight: '600',
-    transition: 'all 0.2s ease-in-out',
-    margin: '5px',
-    minWidth: '100px',
-  };
-
-  const primaryButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: '#2563eb',
-    color: 'white',
-    '&:hover': { backgroundColor: '#1e40af' },
-  };
-
-  const secondaryButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: '#e5e7eb',
-    color: '#374151',
-    '&:hover': { backgroundColor: '#d1d5db' },
-  };
-
-  const errorStyle = {
-    color: '#dc2626',
-    marginTop: '15px',
-    fontSize: '0.9em',
-  };
+  
+  // ... (JSX styling code remains the same) ...
 
   return (
     <div style={containerStyle}>
@@ -183,4 +130,3 @@ const Auth = () => {
 };
 
 export default Auth;
-
