@@ -1,18 +1,27 @@
+
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Run Extension",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=/Users/kashish/Desktop/vscodeCodingTracker/vscodeDevPulse/devpulse-react-app/devpulse",
-        "--user-data-dir=/tmp/devpulse-vscode-userdata"
-      ],
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
-      "preLaunchTask": "npm: watch"
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run DevPulse Extension (F5 Fix)",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+         
+            "preLaunchTask": "compile-devpulse-extension", 
+            
+            "args": [
+              
+                "--extensionDevelopmentPath=${workspaceFolder}/devpulse-react-app/devpulse",
+                
+               
+                "--user-data-dir=/tmp/devpulse-vscode-userdata"
+            ],
+            
+           
+            "outFiles": [
+                "${workspaceFolder}/devpulse-react-app/devpulse/dist/**/*.js"
+            ]
+        }
+    ]
 }
