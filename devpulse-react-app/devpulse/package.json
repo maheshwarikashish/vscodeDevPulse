@@ -1,8 +1,9 @@
 {
-  "name": "devpulse",
-  "displayName": "devpulse",
+  "name": "personal-devpulse-vscode-extension",
+  "displayName": "DevPulse",
   "description": "Tracks coding rhythm for DevPulse",
   "version": "0.0.1",
+  "publisher": "KashishKhatod",
   "engines": {
     "vscode": "^1.106.1"
   },
@@ -73,7 +74,6 @@
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.1",
-    "firebase-tools": "^14.26.0",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3",
@@ -84,5 +84,9 @@
     "chart.js": "^4.5.1",
     "firebase": "^12.6.0",
     "react-chartjs-2": "^5.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KashishKhatod/devpulse.git"
   }
 }

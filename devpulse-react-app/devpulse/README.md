@@ -1,71 +1,50 @@
-# devpulse README
+# DevPulse: Your Personal Coding Assistant
 
-This is the README for your extension "devpulse". After writing up a brief description, we recommend including the following sections.
+DevPulse helps you understand your coding habits by tracking your "coding rhythm." It monitors when you start and end coding sessions, tracks your breaks, and integrates with your GitHub commit activity to provide a comprehensive view of your productivity.
 
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+## 🚀 The Big Idea
+DevPulse is a lightweight, privacy-focused tool designed for developers. By logging your work directly from VS Code, you feed data into a secure personal dashboard that visualizes your activity, helping you optimize your workflow.
 
 ---
 
-## Following extension guidelines
+## 🛠 Features
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+### 1. The VS Code Extension (Your Control Center)
+The primary touchpoint for logging your activity. Use simple commands via the Command Palette (`Cmd+Shift+P` on Mac or `Ctrl+Shift+P` on Windows):
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+* **DevPulse: Sign In**: Connects your VS Code to your Firebase account securely.
+* **DevPulse: Start Session**: Run this when you begin a deep work block.
+* **DevPulse: End Session**: Run this when you finish coding.
+* **DevPulse: Log Break**: Track your downtime (coffee, lunch, etc.) to see how it affects your focus.
 
-## Working with Markdown
+### 2. The Web Dashboard
+Visit your personalized dashboard at [https://code-45577.web.app](https://code-45577.web.app) to see your "Visual Report Card," including:
+* **Daily Activity Charts**: Visualized breakdown of coding vs. breaks using Chart.js.
+* **Average Session Length**: Identify how long your typical deep-work block lasts.
+* **Productivity Score**: A custom score based on focus time, breaks, and streaks.
+* **GitHub Integration**: A timeline of your recent public commits.
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+---
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+## 🔒 Security & Data
+* **Firebase Authentication**: Handles secure sign-ins; your data is tied only to your unique ID.
+* **Firestore Database**: A secure, real-time "online notebook" that stores your sessions and personal configurations.
+* **Firebase Hosting**: Ensures your dashboard is served over a secure HTTPS connection.
 
-## For more information
+---
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+## 💻 For Developers: Emulator vs. Live
+DevPulse is built with a flexible environment:
+* **Development**: We use the **Firebase Emulator** for a local "sandbox" environment. This allows for safe, cost-free testing without affecting production data.
+* **Production**: When deployed, the app connects to the **Live Firebase** project to store and retrieve your actual coding history.
 
-**Enjoy!**
+---
+
+## 📦 How to Use
+1. Install the extension from the VS Code Marketplace.
+2. Sign in using the `DevPulse: Sign In` command.
+3. Start a session and begin coding!
+4. Check your progress anytime on the [Web Dashboard](https://code-45577.web.app).
+
+---
+*Built with ❤️ for developers who want to find their flow.*
