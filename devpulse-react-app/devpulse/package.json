@@ -1,8 +1,8 @@
 {
   "name": "devpulse-kashish",
-  "displayName": "DevPulse",
+  "displayName": "DevPulse-coding",
   "description": "Tracks coding rhythm for DevPulse",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "KashishKhatod",
   "engines": {
     "vscode": "^1.106.1"
