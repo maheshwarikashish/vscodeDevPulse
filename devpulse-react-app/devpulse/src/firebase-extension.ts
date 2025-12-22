@@ -1,9 +1,9 @@
-// firebase-extension.ts (FIXED VERSION)
+// firebase-extension.ts
 
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection as fbCollection, addDoc as fbAddDoc, serverTimestamp as fbServerTimestamp, connectFirestoreEmulator as fbConnectEmulator } from "firebase/firestore";
 // IMPORTANT: Import all Auth functions you want to use/export
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithCredential, signInWithCustomToken } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, GithubAuthProvider, signInWithCredential, signInWithCustomToken, signInWithPopup } from "firebase/auth";
 
 // REPLACE WITH YOUR CONFIG OBJECT FROM PHASE 1
 const firebaseConfig = {
@@ -16,7 +16,6 @@ const firebaseConfig = {
 };
 
 // Decide whether the config looks real or still placeholder values.
-// NOTE: Your config does NOT look like a placeholder, so this check will likely pass.
 const configIsPlaceholder = Object.values(firebaseConfig).some((v) => typeof v === 'string' && v.includes('...'));
 
 // Initialize Firebase safely.
@@ -94,7 +93,7 @@ function serverTimestamp() {
   return fbServerTimestamp();
 }
 
-// FIX APPLIED HERE: Re-exporting all necessary authentication methods
+// Re-exporting all necessary authentication methods
 export { 
   db, 
   auth, 
@@ -103,9 +102,8 @@ export {
   serverTimestamp, 
   GithubAuthProvider, 
   signInWithCredential, 
-  // ADDED: The missing export that caused the TS2459 error
   signInWithCustomToken, 
-  // For completeness, you might also need these if extension.ts uses them:
+  signInWithPopup,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut
