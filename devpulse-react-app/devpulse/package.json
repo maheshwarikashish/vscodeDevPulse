@@ -1,8 +1,8 @@
 {
-  "name": "personal-devpulse-vscode-extension",
+  "name": "pulse",
   "displayName": "DevPulse",
   "description": "Tracks coding rhythm for DevPulse",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "KashishKhatod",
   "engines": {
     "vscode": "^1.106.1"
