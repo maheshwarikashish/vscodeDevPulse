@@ -1,6 +1,6 @@
 // src/extension.ts
 import * as vscode from 'vscode';
-import { db, collection, addDoc, serverTimestamp, testWrite, auth, GithubAuthProvider, signInWithCredential, signInWithCustomToken } from './firebase-extension'; // consolidated import
+import { db, collection, addDoc, serverTimestamp, testWrite, auth, GithubAuthProvider, signInWithCredential, signInWithCustomToken, signInWithPopup } from './firebase-extension'; // consolidated import
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
 // Global variable to track the start time of the current session
 let sessionStartTime: Date | null = null;
@@ -144,7 +144,25 @@ export function activate(context: vscode.ExtensionContext) {
     // New command for signing in with GitHub
     context.subscriptions.push(
         vscode.commands.registerCommand('devpulse.signInWithGitHub', async () => {
-            vscode.window.showInformationMessage('DevPulse: For GitHub sign-in, please use the DevPulse web application to authenticate. Once authenticated there, your session should be recognized here.');
+            try {
+                const provider = new GithubAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+                const credential = GithubAuthProvider.credentialFromResult(result);
+                const token = credential?.accessToken;
+                // The signed-in user info.
+                const user = result.user;
+                vscode.window.showInformationMessage(`DevPulse: Successfully signed in as ${user.displayName || user.email}`);
+            } catch (error: any) {
+                // Handle Errors here.
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // The email of the user's account used.
+                const email = error.customData?.email;
+                // The AuthCredential type that was used.
+                const credential = GithubAuthProvider.credentialFromError(error);
+                vscode.window.showErrorMessage(`DevPulse GitHub Sign-in failed: ${errorMessage}`);
+            }
         })
     );
 
